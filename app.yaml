@@ -1,0 +1,3 @@
+# Wasmer Edge deployment configuration
+# Uses the Dockerfile in the repository root.
+docker: ./Dockerfile

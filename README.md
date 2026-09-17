@@ -1,84 +1,28 @@
+# Ubuntu on Browser
 
-![Ubuntu](https://img.shields.io/badge/Ubuntu-Latest-E95420?logo=ubuntu)
-![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04-E95420?logo=ubuntu)
-![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-E95420?logo=ubuntu)
-![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04-E95420?logo=ubuntu)
-![Ubuntu](https://img.shields.io/badge/Other-Version-E95420?logo=ubuntu)
-![Docker](https://img.shields.io/badge/Railway-Supported-blue?logo=railway)
-![Docker](https://img.shields.io/badge/Docker-Supported-blue?logo=docker)
+This repository contains a deployable ASP.NET Core 8 application. It runs on Linux containers and supports platforms such as Railway, Render, Azure Container Apps, and any Docker-compatible host.
 
-# 🐧 Ubuntu on Browser
-**Repository Name:** ubuntu-on-browser
+## Run locally with .NET 8
 
-**Template Name:** Ubuntu
+```bash
+dotnet run
+```
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/ubuntu-1?referralCode=asepsp&utm_medium=integration&utm_source=template&utm_campaign=generic)
+The application listens on the URL configured by ASP.NET Core. Open `/` in a browser and use `/health` for a health check.
 
-## 📖 Description
-Want to try out Ubuntu or need a lightweight version of Linux available at all times? 🚀 
+## Run with Docker
 
-This project allows you to deploy a fully functional Ubuntu environment in the cloud, accessible directly via your web browser.
+```bash
+docker build -t ubuntu-on-browser .
+docker run --rm -p 8080:8080 -e PORT=8080 ubuntu-on-browser
+```
 
-This project utilizes the Ubuntu Docker image to deploy a container that supports most CLI tools. It uses [ttyd](https://github.com/tsl0922/ttyd) to provide a seamless, browser-based terminal experience with built-in security.
+Open http://localhost:8080.
 
-![Ubuntu Home](./img/ubuntu_home.png)
+The Docker image uses a multi-stage .NET 8 build: the SDK is used only during compilation and the smaller ASP.NET runtime image is used in production. The container reads the hosting platform's `PORT` environment variable and defaults to `8080`.
 
----
+## Deployment
 
-### ✨ Key Features
-- 🐧 **Dynamic Ubuntu Base:** Defaults to the `latest` version, but customizable to any version (20.04, 22.04, 24.04).
-- 🔒 **Secure Access:** Password-protected web terminal via Basic Authentication.
-- 💻 **Dev-Ready:** Neofetch display on login and pre-installed essential tools.
-- 🌐 **Web-Accessible:** Use it from any device with a browser—no SSH client needed.
-- 💾 **Persistence Ready:** Easily mount Railway Volumes to save your workspace.
+Set the service's start command to the Dockerfile default (no custom command is required). Configure the platform health check path as `/health` if health checks are supported.
 
----
-
-## 🛠️ Configuration & Variables
-
-### Environment Variables
-Configure these in the **Variables** tab of your Railway dashboard. These variables control both the installation version and your login security:
-
-| Variable           | Default  | Description                                                                       |
-| :----------------- | :------- | :-------------------------------------------------------------------------------- |
-| **UBUNTU_VERSION** | `latest` | **(Build)** Set this to `22.04`, `20.04`, etc., to deploy your preferred version. |
-| **USERNAME**       | `admin`  | **(Runtime)** Your custom username to login to the web terminal.                  |
-| **PASSWORD**       | `admin`  | **(Runtime)** Your secure password to login to the web terminal.                  |
-| **PORT**           | `8080`   | **(System)** The port assigned by Railway.                                        |
-
-> **⚠️ SECURITY NOTE:** It is strongly advised to set a custom **USERNAME** and **PASSWORD** before deploying to prevent unauthorized access to your cloud terminal.
-
----
-
-## 📂 Data Persistence (Recommended)
-By default, Railway containers are ephemeral. To save your files permanently:
-1. Create a **New Volume** in your Railway project.
-2. Mount the volume to your Ubuntu service.
-3. Set the **Mount Path** to `/root/workspace`.
-4. All files inside this folder will persist even after a re-deploy!
-
----
-
-## 🚀 Why Deploy on Railway?
-- **Instant Access:** Get a Linux terminal from any device in minutes.
-- **Zero Setup:** No local installation, VirtualBox, or VM configuration required.
-- **Testing Ground:** Perfect for learning Linux, testing scripts, or running Python automation.
-- **Modern Infrastructure:** Automatic HTTPS/SSL and easy resource scaling.
-
-## 🤝 Common Use Cases
-- Testing shell scripts and automation workflows.
-- Learning Linux command-line basics in a safe sandbox.
-- Remote development environment for lightweight coding.
-- Package and dependency testing for IT Middleware tasks.
-
----
-
-## 📦 Tech Stack & Dependencies
-- **Base OS:** Ubuntu (Flexible Versioning)
-- **Terminal Engine:** `ttyd` (Shares terminal over HTTP)
-- **Pre-installed Tools:** `wget`, `curl`, `git`, `python3`, `python3-pip`, `neofetch`.
-
----
-
-## 🛡️ License
-Distributed under the **MIT License**. Copyright (c) 2023-2026 **ASEP SAPUTRA**.
+> The previous Ubuntu/ttyd image provided an interactive shell. The .NET deployment is an ASP.NET Core web application and does not include ttyd or a shell terminal. Keep the original Linux terminal Dockerfile in a separate service if that capability is required.

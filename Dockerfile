@@ -1,28 +1,27 @@
-ARG UBUNTU_VERSION=latest
-FROM ubuntu:${UBUNTU_VERSION}
+# syntax=docker/dockerfile:1
 
-ARG UBUNTU_VERSION
-ENV INSTALLED_VER=${UBUNTU_VERSION}
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
 
-ENV DEBIAN_FRONTEND=noninteractive
+COPY UbuntuOnBrowser.csproj ./
+RUN dotnet restore UbuntuOnBrowser.csproj
 
-# 1. install neofetch, if failed -> fastfetch
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y wget curl git python3 python3-pip && \
-    (apt-get install -y neofetch || apt-get install -y fastfetch) && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+COPY . ./
+RUN dotnet publish UbuntuOnBrowser.csproj \
+    --configuration Release \
+    --output /app/publish \
+    --no-restore \
+    --property:UseAppHost=false
 
-RUN wget -qO /bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.3/ttyd.x86_64 && \
-    chmod +x /bin/ttyd
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
 
-RUN mkdir -p /root/workspace
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV DOTNET_EnableDiagnostics=0
 
-# 2. check
-RUN echo "echo 'Welcome to Ubuntu ${INSTALLED_VER} on Browser! 🐧'" >> /root/.bashrc && \
-    echo "cd /root/workspace" >> /root/.bashrc && \
-    echo "command -v neofetch >/dev/null 2>&1 && neofetch || fastfetch" >> /root/.bashrc
+COPY --from=build /app/publish ./
 
-EXPOSE $PORT
+EXPOSE 8080
 
-CMD ["/bin/bash", "-c", "/bin/ttyd -p ${PORT:-8080} -c ${USERNAME:-admin}:${PASSWORD:-admin} /bin/bash"]
+# Railway, Render, and similar platforms provide PORT at runtime.
+ENTRYPOINT ["sh", "-c", "ASPNETCORE_URLS=http://0.0.0.0:${PORT:-8080} exec dotnet UbuntuOnBrowser.dll"]

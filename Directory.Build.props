@@ -1,6 +1,7 @@
 <Project>
   <PropertyGroup>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <!-- Keep publishing platform-neutral so Linux containers and .NET hosting services work. -->
+    <RuntimeIdentifier></RuntimeIdentifier>
     <SelfContained>false</SelfContained>
     <PublishSingleFile>false</PublishSingleFile>
   </PropertyGroup>

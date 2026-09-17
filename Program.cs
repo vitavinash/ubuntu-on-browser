@@ -21,14 +21,15 @@ app.MapGet("/", () => Results.Content("""
     h1 { margin-top:0; }
     code { color:#86efac; }
     .small { color:#cbd5e1; }
+    a { color:#93c5fd; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>Ubuntu on Browser</h1>
-    <p>The ASP.NET Core app is running correctly.</p>
+    <p>The ASP.NET Core application is running correctly.</p>
     <p><a href="/health">Health check</a></p>
-    <p class="small">This site is a Windows/IIS-compatible wrapper. The original interactive Ubuntu terminal requires a Linux container host such as Render or Railway.</p>
+    <p class="small">This deployment runs the .NET 8 web application in a Linux container. The interactive Ubuntu terminal requires a container host that supports the original ttyd-based image.</p>
   </div>
 </body>
 </html>

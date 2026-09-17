@@ -5,5 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
     <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>false</SelfContained>
+    <UseAppHost>false</UseAppHost>
   </PropertyGroup>
 </Project>

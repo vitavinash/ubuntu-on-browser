@@ -1,25 +1,23 @@
-# MonsterASP.NET deployment checklist
-+
-+Run this locally from the repo root:
-+
-+```bash
-+dotnet restore
-+dotnet publish -c Release -o publish
-+```
-+
-+Then upload the contents of the `publish` folder to the MonsterASP app root.
-+
-+Do not upload source files (`Program.cs`, `.csproj`, `Dockerfile`, etc.). Upload the compiled output only.
-+
-+The following files are required in the published output:
-+
-+- `UbuntuOnBrowser.dll`
-+- `UbuntuOnBrowser.runtimeconfig.json`
-+- `UbuntuOnBrowser.deps.json`
-+- `web.config`
-+
-+Important:
-+
-+- MonsterASP.NET is Windows/IIS. It cannot run the Linux Docker `ttyd` terminal from this repo.
-+- The original Ubuntu browser terminal must be deployed to Render, Railway, or another Linux container service.
-+- This app is a publishable ASP.NET Core app that can be hosted on MonsterASP; it is not the Ubuntu terminal itself.
+# MonsterASP.NET deployment
+
+## If the site shows HTTP 403.14
+
+The 403.14 page means IIS is serving the folder as a static directory and did not find a default document. This branch now includes `index.html`, so uploading the repository root will display a page instead of the directory-listing error.
+
+## Recommended ASP.NET Core deployment
+
+For the ASP.NET Core application, do not upload the GitHub source directory directly. Publish it first:
+
+```bash
+dotnet publish -c Release -o publish
+```
+
+Upload **all files inside `publish/`** to the IIS application root. The upload must include `web.config`, `UbuntuOnBrowser.dll`, `UbuntuOnBrowser.deps.json`, and `UbuntuOnBrowser.runtimeconfig.json`.
+
+If you upload only the source repository, IIS will not compile `Program.cs` or run the `.csproj`; it will serve files statically. `index.html` is included only as a fallback for that situation.
+
+The `/health` endpoint is available after a successful ASP.NET Core publish. If `/health` returns 404 but `/` displays the static page, the published ASP.NET Core application has not been deployed.
+
+## Terminal limitation
+
+MonsterASP/IIS cannot run the Linux `ttyd` terminal from the Dockerfile. Deploy the original Dockerfile to Render, Railway, or another Linux container provider for the actual browser Ubuntu terminal.

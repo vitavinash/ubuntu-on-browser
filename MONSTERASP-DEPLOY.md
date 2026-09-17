@@ -1,23 +1,45 @@
 # MonsterASP.NET deployment
 
-## If the site shows HTTP 403.14
+The repository supports both Docker hosting and normal ASP.NET Core hosting on MonsterASP.NET/IIS.
 
-The 403.14 page means IIS is serving the folder as a static directory and did not find a default document. This branch now includes `index.html`, so uploading the repository root will display a page instead of the directory-listing error.
+## Publish for MonsterASP.NET
 
-## Recommended ASP.NET Core deployment
-
-For the ASP.NET Core application, do not upload the GitHub source directory directly. Publish it first:
+Install the .NET 8 SDK, then run this from the repository root:
 
 ```bash
-dotnet publish -c Release -o publish
+dotnet publish UbuntuOnBrowser.csproj -c Release -r win-x64 --self-contained false -o ./publish
 ```
 
-Upload **all files inside `publish/`** to the IIS application root. The upload must include `web.config`, `UbuntuOnBrowser.dll`, `UbuntuOnBrowser.deps.json`, and `UbuntuOnBrowser.runtimeconfig.json`.
+Upload **all files inside `publish/`** to the MonsterASP.NET IIS application root. Do not upload only the source `.cs` files or the `.csproj` file. The published directory must include:
 
-If you upload only the source repository, IIS will not compile `Program.cs` or run the `.csproj`; it will serve files statically. `index.html` is included only as a fallback for that situation.
+- `UbuntuOnBrowser.dll`
+- `UbuntuOnBrowser.deps.json`
+- `UbuntuOnBrowser.runtimeconfig.json`
+- `web.config`
+- all other files produced by `dotnet publish`
 
-The `/health` endpoint is available after a successful ASP.NET Core publish. If `/health` returns 404 but `/` displays the static page, the published ASP.NET Core application has not been deployed.
+The included `web.config` starts the ASP.NET Core application through IIS's ASP.NET Core Module. The application listens on the port assigned by IIS and does not require a `PORT` environment variable on MonsterASP.NET.
 
-## Terminal limitation
+## Visual Studio
 
-MonsterASP/IIS cannot run the Linux `ttyd` terminal from the Dockerfile. Deploy the original Dockerfile to Render, Railway, or another Linux container provider for the actual browser Ubuntu terminal.
+1. Open `UbuntuOnBrowser.csproj` in Visual Studio.
+2. Select **Publish**.
+3. Choose **Folder** as the target.
+4. Select **Release**, `win-x64`, and **Framework-dependent**.
+5. Publish and upload the contents of the generated folder to MonsterASP.NET.
+
+The repository also includes `Properties/PublishProfiles/MonsterASP.pubxml` for file-system publishing.
+
+## Verify the deployment
+
+Open:
+
+```text
+https://your-domain.example/health
+```
+
+A successful deployment returns JSON showing `status: ok` and `.NET 8`.
+
+## Important limitation
+
+MonsterASP.NET/IIS can host the ASP.NET Core web application, but it cannot run the original Linux `ttyd` Ubuntu terminal from the Dockerfile. Use Railway, Render, or another Linux container provider for the interactive Ubuntu terminal.

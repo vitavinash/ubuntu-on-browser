@@ -1,6 +1,19 @@
 # Ubuntu on Browser
 
-This repository contains a deployable ASP.NET Core 8 application. It runs on Linux containers and supports platforms such as Railway, Render, Azure Container Apps, and any Docker-compatible host.
+This repository contains a deployable ASP.NET Core 8 application with two hosting options:
+
+- **MonsterASP.NET/IIS:** publish the application as a Windows x64 ASP.NET Core application.
+- **Docker/Linux providers:** build and run the included multi-stage Dockerfile.
+
+## MonsterASP.NET deployment
+
+Publish the application first:
+
+```bash
+dotnet publish UbuntuOnBrowser.csproj -c Release -r win-x64 --self-contained false -o ./publish
+```
+
+Upload all files inside `publish/` to the MonsterASP.NET IIS application root. See [MONSTERASP-DEPLOY.md](MONSTERASP-DEPLOY.md) for the complete IIS deployment instructions.
 
 ## Run locally with .NET 8
 
@@ -8,7 +21,7 @@ This repository contains a deployable ASP.NET Core 8 application. It runs on Lin
 dotnet run
 ```
 
-The application listens on the URL configured by ASP.NET Core. Open `/` in a browser and use `/health` for a health check.
+Open the displayed URL in a browser and use `/health` for a health check.
 
 ## Run with Docker
 
@@ -19,10 +32,6 @@ docker run --rm -p 8080:8080 -e PORT=8080 ubuntu-on-browser
 
 Open http://localhost:8080.
 
-The Docker image uses a multi-stage .NET 8 build: the SDK is used only during compilation and the smaller ASP.NET runtime image is used in production. The container reads the hosting platform's `PORT` environment variable and defaults to `8080`.
+The Docker image uses a multi-stage .NET 8 build and reads the hosting platform's `PORT` environment variable, defaulting to `8080`.
 
-## Deployment
-
-Set the service's start command to the Dockerfile default (no custom command is required). Configure the platform health check path as `/health` if health checks are supported.
-
-> The previous Ubuntu/ttyd image provided an interactive shell. The .NET deployment is an ASP.NET Core web application and does not include ttyd or a shell terminal. Keep the original Linux terminal Dockerfile in a separate service if that capability is required.
+> The ASP.NET Core deployment is a web application and does not include ttyd or a Linux shell terminal. Keep the original Ubuntu/ttyd container on a Linux container host when that capability is required.
